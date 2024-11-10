@@ -19,6 +19,24 @@ userRouter.get("/users", async (req : Request, res : Response) => {
     }
 })
 
+userRouter.delete("/user/:id", async (req : Request, res : Response) => {
+    try {
+        const id = (req.params.id)
+
+        const user = await database.findOne(id)
+
+        if (!user) {
+            return res.status(StatusCodes.NOT_FOUND).json({error : `User does not exist`})
+        }
+
+        await database.remove(id)
+
+        return res.status(StatusCodes.OK).json({msg : "User deleted"})
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error})
+    }
+})
+
 userRouter.get("/user/:id", async (req : Request, res : Response) => {
     try {
         const user : UnitUser = await database.findOne(req.params.id)
