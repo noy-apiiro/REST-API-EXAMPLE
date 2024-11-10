@@ -56,34 +56,6 @@ userRouter.post("/register", async (req : Request, res : Response) => {
     }
 })
 
-userRouter.post("/login", async (req : Request, res : Response) => {
-    try {
-        const {email, password} = req.body
-
-        if (!email || !password) {
-            return res.status(StatusCodes.BAD_REQUEST).json({error : "Please provide all the required parameters.."})
-        }
-
-        const user = await database.findByEmail(email)
-
-        if (!user) {
-            return res.status(StatusCodes.NOT_FOUND).json({error : "No user exists with the email provided.."})
-        }
-
-        const comparePassword = await database.comparePassword(email, password)
-
-        if (!comparePassword) {
-            return res.status(StatusCodes.BAD_REQUEST).json({error : `Incorrect Password!`})
-        }
-
-        return res.status(StatusCodes.OK).json({user})
-
-    } catch (error) {
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error})
-    }
-})
-
-
 userRouter.put('/user/:id', async (req : Request, res : Response) => {
 
     try {
@@ -109,19 +81,28 @@ userRouter.put('/user/:id', async (req : Request, res : Response) => {
     }
 })
 
-userRouter.delete("/user/:id", async (req : Request, res : Response) => {
+userRouter.post("/login", async (req : Request, res : Response) => {
     try {
-        const id = (req.params.id)
+        const {email, password} = req.body
 
-        const user = await database.findOne(id)
-
-        if (!user) {
-            return res.status(StatusCodes.NOT_FOUND).json({error : `User does not exist`})
+        if (!email || !password) {
+            return res.status(StatusCodes.BAD_REQUEST).json({error : "Please provide all the required parameters.."})
         }
 
-        await database.remove(id)
+        const user = await database.findByEmail(email)
 
-        return res.status(StatusCodes.OK).json({msg : "User deleted"})
+        if (!user) {
+            return res.status(StatusCodes.NOT_FOUND).json({error : "No user exists with the email provided.."})
+        }
+
+        const comparePassword = await database.comparePassword(email, password)
+
+        if (!comparePassword) {
+            return res.status(StatusCodes.BAD_REQUEST).json({error : `Incorrect Password!`})
+        }
+
+        return res.status(StatusCodes.OK).json({user})
+
     } catch (error) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error})
     }
